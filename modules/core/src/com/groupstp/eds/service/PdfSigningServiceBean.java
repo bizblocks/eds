@@ -3,6 +3,7 @@ package com.groupstp.eds.service;
 import com.groupstp.eds.config.EdsServiceConfig;
 import com.haulmont.cuba.core.global.Configuration;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.security.DigestAlgorithms;
 import com.itextpdf.text.pdf.security.MakeSignature;
@@ -28,7 +29,7 @@ public class PdfSigningServiceBean implements PdfSigningService {
     private Configuration configuration;
 
     @Override
-    public byte[] sign(byte[] fileToSign, String location, String contact, String reason)
+    public byte[] sign(byte[] fileToSign, String location, String contact, String reason, boolean signAppearanceVisible)
             throws KeyStoreException, NoSuchAlgorithmException, SignatureException {
 
         final EdsServiceConfig serviceConfig = configuration.getConfig(EdsServiceConfig.class);
@@ -43,13 +44,13 @@ public class PdfSigningServiceBean implements PdfSigningService {
 
         final String hashAlgorithm = getHashAlgorithm(keyAlgorithm);
 
-        return sign(key, hashAlgorithm, chain, fileToSign, location, reason, contact, true);
+        return sign(key, hashAlgorithm, chain, fileToSign, location, reason, contact, true, signAppearanceVisible);
     }
 
     private static byte[] sign(PrivateKey privateKey, String hashAlgorithm,
                                Certificate[] chain, byte[] fileToSign,
-                               String location, String reason,
-                               String contact, boolean append)
+                               String location, String reason, String contact, boolean append,
+                               boolean signAppearanceVisible)
             throws SignatureException {
 
         PdfStamper stp;
@@ -70,6 +71,9 @@ public class PdfSigningServiceBean implements PdfSigningService {
         sap.setReason(reason);
         sap.setLocation(location);
         sap.setContact(contact);
+        sap.setRenderingMode(PdfSignatureAppearance.RenderingMode.DESCRIPTION);
+        if (signAppearanceVisible)
+            sap.setVisibleSignature(new Rectangle(300, 100, 550, 170), 1, null);
 
         PdfSignature dic = new PdfSignature(PdfName.ADOBE_CryptoProPDF, PdfName.ADBE_PKCS7_DETACHED);
         dic.setReason(sap.getReason());
