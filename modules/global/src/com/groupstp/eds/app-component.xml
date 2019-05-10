@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<app-component xmlns="http://schemas.haulmont.com/cuba/app-component.xsd"
+               dependsOn="com.haulmont.cuba">
+    <module blocks="*"
+            name="global">
+        <artifact appJar="true"
+                  name="app-global"/>
+        <property name="cuba.persistenceConfig"
+                  value="+com/groupstp/eds/persistence.xml"/>
+        <property name="cuba.metadataConfig"
+                  value="+com/groupstp/eds/metadata.xml"/>
+        <property name="cuba.viewsConfig"
+                  value="+com/groupstp/eds/views.xml"/>
+    </module>
+    <module blocks="core"
+            dependsOn="global"
+            name="core">
+        <artifact appJar="true"
+                  name="app-core"/>
+        <property name="cuba.springContextConfig"
+                  value="+com/groupstp/eds/spring.xml"/>
+        <property name="cuba.mainMessagePack"
+                  value="+com.groupstp.eds.core"/>
+        <artifact classifier="db"
+                  configuration="dbscripts"
+                  ext="zip"
+                  name="app-core"/>
+    </module>
+    <module blocks="web"
+            dependsOn="global"
+            name="web">
+        <artifact appJar="true"
+                  name="app-web"/>
+        <artifact classifier="web"
+                  configuration="webcontent"
+                  ext="zip"
+                  name="app-web"/>
+        <property name="cuba.springContextConfig"
+                  value="+com/groupstp/eds/web-spring.xml"/>
+        <property name="cuba.dispatcherSpringContextConfig"
+                  value="+com/groupstp/eds/web-dispatcher-spring.xml"/>
+        <property name="cuba.windowConfig"
+                  value="+com/groupstp/eds/web-screens.xml"/>
+        <property name="cuba.menuConfig"
+                  value="+com/groupstp/eds/web-menu.xml"/>
+        <property name="cuba.permissionConfig"
+                  value="+com/groupstp/eds/web-permissions.xml"/>
+        <property name="cuba.mainMessagePack"
+                  value="+com.groupstp.eds.web"/>
+    </module>
+</app-component>
