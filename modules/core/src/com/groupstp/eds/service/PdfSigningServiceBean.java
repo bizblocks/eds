@@ -164,6 +164,8 @@ public class PdfSigningServiceBean implements PdfSigningService {
 
     private static PrivateKey getKey(KeyStore keyStore, String alias, String password) throws KeyStoreException {
         try {
+            if (Strings.isNullOrEmpty(alias))
+                alias = keyStore.aliases().nextElement();
             final PrivateKey key = (PrivateKey) keyStore.getKey(alias, password.toCharArray());
             if (key == null)
                 throw new KeyStoreException("Can`t find key");
