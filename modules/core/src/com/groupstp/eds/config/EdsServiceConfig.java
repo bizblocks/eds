@@ -13,10 +13,9 @@ public interface EdsServiceConfig extends Config {
     String getKeyStorePassword();
 
     @Property("eds.sign.container.alias")
-    @Default("te-13eecc9c-0f4d-4bba-9410-7d40e1149fe8")
     String getContainerAlias();
 
     @Property("eds.sign.container.password")
-    @Default("12345")
+    @Default("00000000")
     String getContainerPassword();
 }
