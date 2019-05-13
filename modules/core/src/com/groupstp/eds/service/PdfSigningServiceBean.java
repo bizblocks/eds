@@ -1,5 +1,6 @@
 package com.groupstp.eds.service;
 
+import com.google.common.base.Strings;
 import com.groupstp.eds.config.EdsServiceConfig;
 import com.haulmont.cuba.core.global.Configuration;
 import com.itextpdf.text.DocumentException;
@@ -153,7 +154,7 @@ public class PdfSigningServiceBean implements PdfSigningService {
     private static KeyStore getKeyStore(String password) throws KeyStoreException {
         try {
             KeyStore keyStore = KeyStore.getInstance(JCP.HD_STORE_NAME);
-            keyStore.load(null, password.toCharArray());
+            keyStore.load(null, Strings.isNullOrEmpty(password) ? null : password.toCharArray());
             return keyStore;
 
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
