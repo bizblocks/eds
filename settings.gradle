@@ -1,6 +1,5 @@
 rootProject.name = 'eds'
 def modulePrefix = 'eds'
-include(":${modulePrefix}-global", ":${modulePrefix}-core", ":${modulePrefix}-web")
+include(":${modulePrefix}-global", ":${modulePrefix}-core")
 project(":${modulePrefix}-global").projectDir = new File(settingsDir, 'modules/global')
 project(":${modulePrefix}-core").projectDir = new File(settingsDir, 'modules/core')
-project(":${modulePrefix}-web").projectDir = new File(settingsDir, 'modules/web')
