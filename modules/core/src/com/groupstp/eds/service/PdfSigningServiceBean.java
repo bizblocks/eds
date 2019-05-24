@@ -36,9 +36,10 @@ public class PdfSigningServiceBean implements PdfSigningService {
         final EdsServiceConfig serviceConfig = configuration.getConfig(EdsServiceConfig.class);
         final String ksPassword = serviceConfig.getKeyStorePassword();
         final String containerPassword = serviceConfig.getContainerPassword();
-        final String alias = serviceConfig.getContainerAlias();
-
         final KeyStore keyStore = getKeyStore(ksPassword);
+        String alias = serviceConfig.getContainerAlias();
+        if (Strings.isNullOrEmpty(alias))
+            alias = keyStore.aliases().nextElement();
         final PrivateKey key = getKey(keyStore, alias, containerPassword);
         final Certificate[] chain = getChain(keyStore, alias);
         final String keyAlgorithm = key.getAlgorithm();
@@ -145,8 +146,6 @@ public class PdfSigningServiceBean implements PdfSigningService {
 
     private static Certificate[] getChain(KeyStore keyStore, String alias) throws KeyStoreException {
         try {
-            if (Strings.isNullOrEmpty(alias))
-                alias = keyStore.aliases().nextElement();
             return keyStore.getCertificateChain(alias);
         } catch (KeyStoreException e) {
             throw new KeyStoreException("Error while loading certificate chain");
@@ -166,8 +165,6 @@ public class PdfSigningServiceBean implements PdfSigningService {
 
     private static PrivateKey getKey(KeyStore keyStore, String alias, String password) throws KeyStoreException {
         try {
-            if (Strings.isNullOrEmpty(alias))
-                alias = keyStore.aliases().nextElement();
             final PrivateKey key = (PrivateKey) keyStore.getKey(alias, password.toCharArray());
             if (key == null)
                 throw new KeyStoreException("Can`t find key");
