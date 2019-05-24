@@ -3,8 +3,7 @@ package com.groupstp.eds.service;
 import com.google.common.base.Strings;
 import com.groupstp.eds.config.EdsServiceConfig;
 import com.haulmont.cuba.core.global.Configuration;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.security.DigestAlgorithms;
 import com.itextpdf.text.pdf.security.MakeSignature;
@@ -67,6 +66,8 @@ public class PdfSigningServiceBean implements PdfSigningService {
             throw new SignatureException("Error while creating PdfReader");
         }
 
+        final Font font = FontFactory.getFont("/resources/fonts/Roboto-Regular.ttf",
+                BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED, 10f, Font.NORMAL, BaseColor.BLUE);
 
         PdfSignatureAppearance sap = stp.getSignatureAppearance();
         sap.setCertificate(chain[0]);
@@ -74,6 +75,7 @@ public class PdfSigningServiceBean implements PdfSigningService {
         sap.setLocation(location);
         sap.setContact(contact);
         sap.setRenderingMode(PdfSignatureAppearance.RenderingMode.DESCRIPTION);
+        sap.setLayer2Font(font);
         if (signAppearanceVisible)
             sap.setVisibleSignature(new Rectangle(300, 100, 550, 170), 1, null);
 
