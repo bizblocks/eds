@@ -145,6 +145,8 @@ public class PdfSigningServiceBean implements PdfSigningService {
 
     private static Certificate[] getChain(KeyStore keyStore, String alias) throws KeyStoreException {
         try {
+            if (Strings.isNullOrEmpty(alias))
+                alias = keyStore.aliases().nextElement();
             return keyStore.getCertificateChain(alias);
         } catch (KeyStoreException e) {
             throw new KeyStoreException("Error while loading certificate chain");
