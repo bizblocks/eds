@@ -26,26 +26,4 @@
                   ext="zip"
                   name="eds-core"/>
     </module>
-    <module blocks="web"
-            dependsOn="global"
-            name="web">
-        <artifact appJar="true"
-                  name="eds-web"/>
-        <artifact classifier="web"
-                  configuration="webcontent"
-                  ext="zip"
-                  name="eds-web"/>
-        <property name="cuba.springContextConfig"
-                  value="+com/groupstp/eds/web-spring.xml"/>
-        <property name="cuba.dispatcherSpringContextConfig"
-                  value="+com/groupstp/eds/web-dispatcher-spring.xml"/>
-        <property name="cuba.windowConfig"
-                  value="+com/groupstp/eds/web-screens.xml"/>
-        <property name="cuba.menuConfig"
-                  value="+com/groupstp/eds/web-menu.xml"/>
-        <property name="cuba.permissionConfig"
-                  value="+com/groupstp/eds/web-permissions.xml"/>
-        <property name="cuba.mainMessagePack"
-                  value="+com.groupstp.eds.web"/>
-    </module>
 </app-component>
