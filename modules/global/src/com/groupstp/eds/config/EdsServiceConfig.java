@@ -30,4 +30,8 @@ public interface EdsServiceConfig extends Config {
     @Property("eds.sign.reason")
     @Default("")
     String getReason();
+
+    @Property("eds.sign.signDocs")
+    @Default("false")
+    Boolean getSignDocs();
 }
