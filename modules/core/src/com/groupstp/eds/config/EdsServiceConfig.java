@@ -18,4 +18,16 @@ public interface EdsServiceConfig extends Config {
     @Property("eds.sign.container.password")
     @Default("00000000")
     String getContainerPassword();
+
+    @Property("eds.sign.location")
+    @Default("")
+    String getLocation();
+
+    @Property("eds.sign.contact")
+    @Default("")
+    String getContact();
+
+    @Property("eds.sign.reason")
+    @Default("")
+    String getReason();
 }
