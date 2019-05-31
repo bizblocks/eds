@@ -2,7 +2,6 @@ package com.groupstp.eds.service;
 
 import com.google.common.base.Strings;
 import com.groupstp.eds.config.EdsServiceConfig;
-import com.haulmont.cuba.core.global.Configuration;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.security.DigestAlgorithms;
@@ -26,17 +25,16 @@ import java.util.HashMap;
 public class PdfSigningServiceBean implements PdfSigningService {
 
     @Inject
-    private Configuration configuration;
+    private EdsServiceConfig edsServiceConfig;
 
     @Override
     public byte[] sign(byte[] fileToSign, String location, String contact, String reason, boolean signAppearanceVisible)
             throws KeyStoreException, NoSuchAlgorithmException, SignatureException {
 
-        final EdsServiceConfig serviceConfig = configuration.getConfig(EdsServiceConfig.class);
-        final String ksPassword = serviceConfig.getKeyStorePassword();
-        final String containerPassword = serviceConfig.getContainerPassword();
+        final String ksPassword = edsServiceConfig.getKeyStorePassword();
+        final String containerPassword = edsServiceConfig.getContainerPassword();
         final KeyStore keyStore = getKeyStore(ksPassword);
-        String alias = serviceConfig.getContainerAlias();
+        String alias = edsServiceConfig.getContainerAlias();
         if (Strings.isNullOrEmpty(alias))
             alias = keyStore.aliases().nextElement();
         final PrivateKey key = getKey(keyStore, alias, containerPassword);
@@ -48,7 +46,7 @@ public class PdfSigningServiceBean implements PdfSigningService {
         return sign(key, hashAlgorithm, chain, fileToSign, location, reason, contact, true, signAppearanceVisible);
     }
 
-    private static byte[] sign(PrivateKey privateKey, String hashAlgorithm,
+    private byte[] sign(PrivateKey privateKey, String hashAlgorithm,
                                Certificate[] chain, byte[] fileToSign,
                                String location, String reason, String contact, boolean append,
                                boolean signAppearanceVisible)
@@ -77,7 +75,11 @@ public class PdfSigningServiceBean implements PdfSigningService {
         sap.setRenderingMode(PdfSignatureAppearance.RenderingMode.DESCRIPTION);
         sap.setLayer2Font(font);
         if (signAppearanceVisible)
-            sap.setVisibleSignature(new Rectangle(300, 100, 550, 170), 1, null);
+            sap.setVisibleSignature(new Rectangle(
+                    edsServiceConfig.getAppearanceRectangleCoordinates().get(0),
+                    edsServiceConfig.getAppearanceRectangleCoordinates().get(1),
+                    edsServiceConfig.getAppearanceRectangleCoordinates().get(2),
+                    edsServiceConfig.getAppearanceRectangleCoordinates().get(3)), 1, null);
 
         PdfSignature dic = new PdfSignature(PdfName.ADOBE_CryptoProPDF, PdfName.ADBE_PKCS7_DETACHED);
         dic.setReason(sap.getReason());

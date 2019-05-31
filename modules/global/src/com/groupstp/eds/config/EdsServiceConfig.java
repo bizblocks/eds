@@ -5,6 +5,10 @@ import com.haulmont.cuba.core.config.Property;
 import com.haulmont.cuba.core.config.Source;
 import com.haulmont.cuba.core.config.SourceType;
 import com.haulmont.cuba.core.config.defaults.Default;
+import com.haulmont.cuba.core.config.type.Factory;
+import com.haulmont.cuba.core.config.type.IntegerListTypeFactory;
+
+import java.util.List;
 
 @Source(type = SourceType.DATABASE)
 public interface EdsServiceConfig extends Config {
@@ -34,4 +38,9 @@ public interface EdsServiceConfig extends Config {
     @Property("eds.sign.signDocs")
     @Default("false")
     Boolean getSignDocs();
+
+    @Property("eds.sign.appearance.coordinates")
+    @Default("300 100 550 170")
+    @Factory(factory = IntegerListTypeFactory.class)
+    List<Integer> getAppearanceRectangleCoordinates();
 }
