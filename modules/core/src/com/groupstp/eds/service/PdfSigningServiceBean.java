@@ -47,9 +47,9 @@ public class PdfSigningServiceBean implements PdfSigningService {
     }
 
     private byte[] sign(PrivateKey privateKey, String hashAlgorithm,
-                               Certificate[] chain, byte[] fileToSign,
-                               String location, String reason, String contact, boolean append,
-                               boolean signAppearanceVisible)
+                        Certificate[] chain, byte[] fileToSign,
+                        String location, String reason, String contact, boolean append,
+                        boolean signAppearanceVisible)
             throws SignatureException {
 
         PdfStamper stp;
@@ -76,10 +76,12 @@ public class PdfSigningServiceBean implements PdfSigningService {
         sap.setLayer2Font(font);
         if (signAppearanceVisible)
             sap.setVisibleSignature(new Rectangle(
-                    edsServiceConfig.getAppearanceRectangleCoordinates().get(0),
-                    edsServiceConfig.getAppearanceRectangleCoordinates().get(1),
-                    edsServiceConfig.getAppearanceRectangleCoordinates().get(2),
-                    edsServiceConfig.getAppearanceRectangleCoordinates().get(3)), 1, null);
+                            edsServiceConfig.getAppearanceRectangleCoordinates().get(0),
+                            edsServiceConfig.getAppearanceRectangleCoordinates().get(1),
+                            edsServiceConfig.getAppearanceRectangleCoordinates().get(2),
+                            edsServiceConfig.getAppearanceRectangleCoordinates().get(3)),
+                    edsServiceConfig.isPlacedInLastPage() ? reader.getNumberOfPages() : 1,
+                    null);
 
         PdfSignature dic = new PdfSignature(PdfName.ADOBE_CryptoProPDF, PdfName.ADBE_PKCS7_DETACHED);
         dic.setReason(sap.getReason());

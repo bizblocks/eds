@@ -43,4 +43,8 @@ public interface EdsServiceConfig extends Config {
     @Default("50 750 220 820")
     @Factory(factory = IntegerListTypeFactory.class)
     List<Integer> getAppearanceRectangleCoordinates();
+
+    @Property("eds.sign.appearance.isPlacedInLastPage")
+    @Default("false")
+    boolean isPlacedInLastPage();
 }

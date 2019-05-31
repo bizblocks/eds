@@ -34,7 +34,7 @@ cuba {
     artifact {
         group = 'com.groupstp.eds'
         version = "0.2.5"
-        isSnapshot = true
+        isSnapshot = false
     }
     tomcat {
         dir = "$project.rootDir/deploy/tomcat"
