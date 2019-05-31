@@ -40,7 +40,7 @@ public interface EdsServiceConfig extends Config {
     Boolean getSignDocs();
 
     @Property("eds.sign.appearance.coordinates")
-    @Default("300 100 550 170")
+    @Default("50 750 220 820")
     @Factory(factory = IntegerListTypeFactory.class)
     List<Integer> getAppearanceRectangleCoordinates();
 }
