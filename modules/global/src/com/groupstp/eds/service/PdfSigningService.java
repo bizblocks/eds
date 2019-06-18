@@ -1,6 +1,8 @@
 package com.groupstp.eds.service;
 
 
+import com.haulmont.cuba.core.global.FileStorageException;
+
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
@@ -24,5 +26,5 @@ public interface PdfSigningService {
      * @throws SignatureException
      */
     byte[] sign(byte[] fileToSign, String location, String contact, String reason, boolean signAppearanceVisible)
-            throws KeyStoreException, NoSuchAlgorithmException, SignatureException;
+            throws KeyStoreException, NoSuchAlgorithmException, SignatureException, FileStorageException;
 }

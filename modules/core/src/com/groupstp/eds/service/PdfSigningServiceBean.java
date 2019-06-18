@@ -2,11 +2,16 @@ package com.groupstp.eds.service;
 
 import com.google.common.base.Strings;
 import com.groupstp.eds.config.EdsServiceConfig;
+import com.haulmont.cuba.core.Persistence;
+import com.haulmont.cuba.core.entity.FileDescriptor;
+import com.haulmont.cuba.core.global.FileLoader;
+import com.haulmont.cuba.core.global.FileStorageException;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.security.DigestAlgorithms;
 import com.itextpdf.text.pdf.security.MakeSignature;
 import com.itextpdf.text.pdf.security.PdfPKCS7;
+import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 import ru.CryptoPro.JCP.JCP;
 
@@ -26,10 +31,14 @@ public class PdfSigningServiceBean implements PdfSigningService {
 
     @Inject
     private EdsServiceConfig edsServiceConfig;
+    @Inject
+    private Persistence persistence;
+    @Inject
+    private FileLoader fileLoader;
 
     @Override
     public byte[] sign(byte[] fileToSign, String location, String contact, String reason, boolean signAppearanceVisible)
-            throws KeyStoreException, NoSuchAlgorithmException, SignatureException {
+            throws KeyStoreException, NoSuchAlgorithmException, SignatureException, FileStorageException {
 
         final String ksPassword = edsServiceConfig.getKeyStorePassword();
         final String containerPassword = edsServiceConfig.getContainerPassword();
@@ -50,7 +59,7 @@ public class PdfSigningServiceBean implements PdfSigningService {
                         Certificate[] chain, byte[] fileToSign,
                         String location, String reason, String contact, boolean append,
                         boolean signAppearanceVisible)
-            throws SignatureException {
+            throws SignatureException, FileStorageException {
 
         PdfStamper stp;
         PdfReader reader;
@@ -72,10 +81,16 @@ public class PdfSigningServiceBean implements PdfSigningService {
         sap.setReason(reason);
         sap.setLocation(location);
         sap.setContact(contact);
-        sap.setRenderingMode(PdfSignatureAppearance.RenderingMode.DESCRIPTION);
+        if (edsServiceConfig.isUseImage()) {
+            sap.setRenderingMode(PdfSignatureAppearance.RenderingMode.GRAPHIC);
+            setSapImage(sap);
+        }
+        else
+            sap.setRenderingMode(PdfSignatureAppearance.RenderingMode.DESCRIPTION);
         sap.setLayer2Font(font);
         if (signAppearanceVisible)
-            sap.setVisibleSignature(new Rectangle(
+            sap.setVisibleSignature(
+                    new Rectangle(
                             edsServiceConfig.getAppearanceRectangleCoordinates().get(0),
                             edsServiceConfig.getAppearanceRectangleCoordinates().get(1),
                             edsServiceConfig.getAppearanceRectangleCoordinates().get(2),
@@ -134,6 +149,23 @@ public class PdfSigningServiceBean implements PdfSigningService {
         }
 
         return outputStream.toByteArray();
+    }
+
+    private void setSapImage(PdfSignatureAppearance sap) throws FileStorageException {
+        final FileDescriptor fileDescriptor = persistence.callInTransaction(em ->
+                em.find(FileDescriptor.class, edsServiceConfig.getImageId()));
+        if (fileDescriptor != null && fileLoader.fileExists(fileDescriptor)){
+            final InputStream stream = fileLoader.openStream(fileDescriptor);
+            Image image = null;
+            try {
+                byte[] bytes = IOUtils.toByteArray(stream);
+                image = Image.getInstance(bytes);
+            } catch (IOException | BadElementException e) {
+                e.printStackTrace();
+            }
+            if (image != null)
+                sap.setSignatureGraphic(image);
+        }
     }
 
     private String getHashAlgorithm(String keyAlgorithm) throws NoSuchAlgorithmException {

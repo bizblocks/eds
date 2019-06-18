@@ -7,8 +7,10 @@ import com.haulmont.cuba.core.config.SourceType;
 import com.haulmont.cuba.core.config.defaults.Default;
 import com.haulmont.cuba.core.config.type.Factory;
 import com.haulmont.cuba.core.config.type.IntegerListTypeFactory;
+import com.haulmont.cuba.core.config.type.UuidTypeFactory;
 
 import java.util.List;
+import java.util.UUID;
 
 @Source(type = SourceType.DATABASE)
 public interface EdsServiceConfig extends Config {
@@ -47,4 +49,12 @@ public interface EdsServiceConfig extends Config {
     @Property("eds.sign.appearance.isPlacedInLastPage")
     @Default("false")
     boolean isPlacedInLastPage();
+
+    @Property("eds.sign.appearance.isUseImage")
+    @Default("false")
+    boolean isUseImage();
+
+    @Factory(factory = UuidTypeFactory.class)
+    @Property("eds.sign.appearance.imageId")
+    UUID getImageId();
 }
