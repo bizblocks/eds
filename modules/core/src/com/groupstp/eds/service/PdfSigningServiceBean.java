@@ -3,6 +3,7 @@ package com.groupstp.eds.service;
 import com.google.common.base.Strings;
 import com.groupstp.eds.config.EdsServiceConfig;
 import com.haulmont.cuba.core.Persistence;
+import com.haulmont.cuba.core.app.FileStorageService;
 import com.haulmont.cuba.core.entity.FileDescriptor;
 import com.haulmont.cuba.core.global.FileLoader;
 import com.haulmont.cuba.core.global.FileStorageException;
@@ -12,6 +13,8 @@ import com.itextpdf.text.pdf.security.DigestAlgorithms;
 import com.itextpdf.text.pdf.security.MakeSignature;
 import com.itextpdf.text.pdf.security.PdfPKCS7;
 import org.apache.commons.io.IOUtils;
+import org.perf4j.slf4j.Slf4JStopWatch;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import ru.CryptoPro.JCP.JCP;
 
@@ -35,6 +38,10 @@ public class PdfSigningServiceBean implements PdfSigningService {
     private Persistence persistence;
     @Inject
     private FileLoader fileLoader;
+    @Inject
+    private Logger log;
+    @Inject
+    private FileStorageService fileStorageService;
 
     @Override
     public byte[] sign(byte[] fileToSign, String location, String contact, String reason, boolean signAppearanceVisible)
@@ -60,6 +67,9 @@ public class PdfSigningServiceBean implements PdfSigningService {
                         String location, String reason, String contact, boolean append,
                         boolean signAppearanceVisible)
             throws SignatureException, FileStorageException {
+
+        final Slf4JStopWatch stopWatch = new Slf4JStopWatch(log);
+        stopWatch.start("sign");
 
         PdfStamper stp;
         PdfReader reader;
@@ -148,6 +158,8 @@ public class PdfSigningServiceBean implements PdfSigningService {
             throw new SignatureException("Error while closing streams");
         }
 
+        stopWatch.stop();
+
         return outputStream.toByteArray();
     }
 
@@ -155,16 +167,15 @@ public class PdfSigningServiceBean implements PdfSigningService {
         final FileDescriptor fileDescriptor = persistence.callInTransaction(em ->
                 em.find(FileDescriptor.class, edsServiceConfig.getImageId()));
         if (fileDescriptor != null && fileLoader.fileExists(fileDescriptor)){
+            log.info("Image exists in file storage");
             final InputStream stream = fileLoader.openStream(fileDescriptor);
-            Image image = null;
             try {
                 byte[] bytes = IOUtils.toByteArray(stream);
-                image = Image.getInstance(bytes);
-            } catch (IOException | BadElementException e) {
-                e.printStackTrace();
-            }
-            if (image != null)
+                Image image = Image.getInstance(bytes);
                 sap.setSignatureGraphic(image);
+            } catch (IOException | BadElementException e) {
+                log.error("Error while getting/setting Signature Graphic", e);
+            }
         }
     }
 
