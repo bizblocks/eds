@@ -3,6 +3,7 @@ package com.groupstp.eds.service;
 import com.google.common.base.Strings;
 import com.groupstp.eds.config.EdsServiceConfig;
 import com.haulmont.cuba.core.Persistence;
+import com.haulmont.cuba.core.app.FileStorageAPI;
 import com.haulmont.cuba.core.app.FileStorageService;
 import com.haulmont.cuba.core.entity.FileDescriptor;
 import com.haulmont.cuba.core.global.FileLoader;
@@ -12,7 +13,6 @@ import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.security.DigestAlgorithms;
 import com.itextpdf.text.pdf.security.MakeSignature;
 import com.itextpdf.text.pdf.security.PdfPKCS7;
-import org.apache.commons.io.IOUtils;
 import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
@@ -42,6 +42,8 @@ public class PdfSigningServiceBean implements PdfSigningService {
     private Logger log;
     @Inject
     private FileStorageService fileStorageService;
+    @Inject
+    private FileStorageAPI fileStorageAPI;
 
     @Override
     public byte[] sign(byte[] fileToSign, String location, String contact, String reason, boolean signAppearanceVisible)
@@ -166,11 +168,11 @@ public class PdfSigningServiceBean implements PdfSigningService {
     private void setSapImage(PdfSignatureAppearance sap) throws FileStorageException {
         final FileDescriptor fileDescriptor = persistence.callInTransaction(em ->
                 em.find(FileDescriptor.class, edsServiceConfig.getImageId()));
-        if (fileDescriptor != null && fileLoader.fileExists(fileDescriptor)){
+
+        if (fileDescriptor != null && fileStorageAPI.fileExists(fileDescriptor)){
             log.info("Image exists in file storage");
-            final InputStream stream = fileLoader.openStream(fileDescriptor);
             try {
-                byte[] bytes = IOUtils.toByteArray(stream);
+                byte[] bytes = fileStorageAPI.loadFile(fileDescriptor);
                 Image image = Image.getInstance(bytes);
                 sap.setSignatureGraphic(image);
             } catch (IOException | BadElementException e) {
