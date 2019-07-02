@@ -81,9 +81,6 @@ public class PdfSigningServiceBean implements PdfSigningService {
             throw new SignatureException("Error while creating PdfReader");
         }
 
-        final Font font = FontFactory.getFont("/resources/fonts/Roboto-Regular.ttf",
-                BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED, 10f, Font.NORMAL, BaseColor.BLUE);
-
         PdfSignatureAppearance sap = stp.getSignatureAppearance();
         sap.setCertificate(chain[0]);
         sap.setReason(reason);
@@ -95,7 +92,6 @@ public class PdfSigningServiceBean implements PdfSigningService {
         }
         else
             sap.setRenderingMode(PdfSignatureAppearance.RenderingMode.DESCRIPTION);
-        sap.setLayer2Font(font);
         if (signAppearanceVisible)
             sap.setVisibleSignature(
                     new Rectangle(
