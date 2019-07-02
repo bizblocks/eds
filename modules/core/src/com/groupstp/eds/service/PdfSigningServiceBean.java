@@ -37,11 +37,7 @@ public class PdfSigningServiceBean implements PdfSigningService {
     @Inject
     private Persistence persistence;
     @Inject
-    private FileLoader fileLoader;
-    @Inject
     private Logger log;
-    @Inject
-    private FileStorageService fileStorageService;
     @Inject
     private FileStorageAPI fileStorageAPI;
 
