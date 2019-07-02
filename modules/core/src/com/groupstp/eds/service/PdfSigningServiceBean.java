@@ -2,13 +2,15 @@ package com.groupstp.eds.service;
 
 import com.google.common.base.Strings;
 import com.groupstp.eds.config.EdsServiceConfig;
+import com.groupstp.eds.helper.PageCoordinateConverter;
 import com.haulmont.cuba.core.Persistence;
 import com.haulmont.cuba.core.app.FileStorageAPI;
-import com.haulmont.cuba.core.app.FileStorageService;
 import com.haulmont.cuba.core.entity.FileDescriptor;
-import com.haulmont.cuba.core.global.FileLoader;
 import com.haulmont.cuba.core.global.FileStorageException;
-import com.itextpdf.text.*;
+import com.itextpdf.text.BadElementException;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.security.DigestAlgorithms;
 import com.itextpdf.text.pdf.security.MakeSignature;
@@ -92,15 +94,17 @@ public class PdfSigningServiceBean implements PdfSigningService {
         }
         else
             sap.setRenderingMode(PdfSignatureAppearance.RenderingMode.DESCRIPTION);
-        if (signAppearanceVisible)
-            sap.setVisibleSignature(
-                    new Rectangle(
-                            edsServiceConfig.getAppearanceRectangleCoordinates().get(0),
-                            edsServiceConfig.getAppearanceRectangleCoordinates().get(1),
-                            edsServiceConfig.getAppearanceRectangleCoordinates().get(2),
-                            edsServiceConfig.getAppearanceRectangleCoordinates().get(3)),
-                    edsServiceConfig.isPlacedInLastPage() ? reader.getNumberOfPages() : 1,
-                    null);
+
+        if (signAppearanceVisible) {
+            final int pageNumber = edsServiceConfig.isPlacedInLastPage() ? reader.getNumberOfPages() : 1;
+            final PageCoordinateConverter converter = new PageCoordinateConverter(reader.getPageSize(pageNumber));
+            final Rectangle rectangle = converter.getRectangle(
+                    edsServiceConfig.getAppearanceRectangleCoordinates().get(0),
+                    edsServiceConfig.getAppearanceRectangleCoordinates().get(1),
+                    edsServiceConfig.getAppearanceRectangleCoordinates().get(2),
+                    edsServiceConfig.getAppearanceRectangleCoordinates().get(3));
+            sap.setVisibleSignature(new Rectangle(rectangle), pageNumber, null);
+        }
 
         PdfSignature dic = new PdfSignature(PdfName.ADOBE_CryptoProPDF, PdfName.ADBE_PKCS7_DETACHED);
         dic.setReason(sap.getReason());
